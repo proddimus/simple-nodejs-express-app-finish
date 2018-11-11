@@ -2,9 +2,10 @@
   "name": "geotunes-app",
   "version": "1.0.0",
   "description": "Remember where you played those tunes, at the call of an API.",
-  "main": "gotunes-app.js",
+  "main": "geotunes-app.js",
   "scripts": {
-    "test": "jest ."
+    "test": "jest .",
+    "eslint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,8 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "sqlite3": "^4.0.3"
+    "sqlite3": "^4.0.3",
+    "validator": "^10.9.0"
   },
   "devDependencies": {
     "eslint": "^5.9.0",

@@ -7,7 +7,7 @@ const port = 3000
 // parse application/json
 app.use(bodyParser.json())
 
-app.get('/', (req, res) => res.send('Hello World!'))
+app.get('/', (req, res) => res.json({message: 'Hello World!'}));
 
 app.get('/artist', async (req, res, next) => {
   helper.getArtist(req, res, next);
@@ -33,7 +33,7 @@ app.post('/songLocation', (req, res, next) => {
   helper.postSongLocation(req, res, next);
 })
 
-app.put('/songLocation', (req, res, next) => {
+app.put('/songLocation/:song_location_id', (req, res, next) => {
   helper.putSongLocation(req, res, next);
 })
 

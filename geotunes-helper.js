@@ -1,6 +1,7 @@
 var sqlite3 = require('sqlite3').verbose()
 var db = new sqlite3.Database('./database.sqlite')
 const fs = require('fs')
+const validator = require('validator');
 
 
 const initDB = async function initDB() {
@@ -64,7 +65,7 @@ const getArtist = async function getArtist(req, res, next) {
       res.json(artists);
     });
   } catch (err) {
-    next(err);
+    res.json(err);
   }
 }
 
@@ -81,7 +82,7 @@ const getAlbum = async function getAlbum(req, res, next) {
       res.json(albums);
     });
   } catch (err) {
-    next(err);
+    res.json(err);
   }
 }
 
@@ -98,7 +99,7 @@ const getSong = async function getSong(req, res, next) {
       res.json(songs);
     });
   } catch (err) {
-    next(err);
+    res.json(err);
   }
 }
 
@@ -115,7 +116,7 @@ const getSongLocations = async function getSongLocations(req, res, next) {
       res.json(songLocations);
     });
   } catch (err) {
-    next(err);
+    res.json(err);
   }
 }
 
@@ -129,29 +130,32 @@ const deleteSongLocations = async function deleteSongLocations(req, res, next) {
       res.json({result: "success"});
     });
   } catch (err) {
-    next(err);
+    res.json(err);
   }
 }
 
 const postSongLocation = async function putSongLocation(req, res, next) {
   try {
+    getValidateLocation(req.body.location);
     let responseBody = req.body;
     await db.run('INSERT INTO songLocations (location, song_id) VALUES (?, ?)', [req.body.location, req.body.song_id]);
     responseBody.status = "success";
     res.json(responseBody);
   } catch (err) {
-    next(err);
+    res.json(err);
   }
 }
 
 const putSongLocation = async function putSongLocation(req, res, next) {
   try {
+    getValidateLocation(req.body.location);
     let responseBody = req.body;
-    await db.run('INSERT OR REPLACE INTO songLocations (song_location_id, location, song_id) VALUES (?, ?, ?)', [req.body.song_location_id, req.body.location, req.body.song_id]);
+    const song_location_id = req.params.song_location_id;
+    await db.run('INSERT OR REPLACE INTO songLocations (song_location_id, location, song_id) VALUES (?, ?, ?)', [song_location_id, req.body.location, req.body.song_id]);
     responseBody.status = "success";
     res.json(responseBody);
   } catch (err) {
-    next(err);
+    res.json(err);
   }
 }
 
@@ -161,7 +165,6 @@ const getSongLocation = async function getSongLocation(req, res, next) {
     let songLocations = [];
     db.get("SELECT * FROM songLocations WHERE song_location_id = ? ", [song_location_id], (err, row) => {
       res.json(row);
-      // process the row here
     });
   } catch (err) {
     next(err);
@@ -184,6 +187,14 @@ const deleteSongLocation = async function deleteSongLocation(req, res, next) {
   }
 }
 
+const getValidateLocation = function getValidateLocation(location) {
+  if(validator.isLatLong(location)) {
+    return location;
+  } else {
+    throw new Error("Invalid Location");
+  }
+}
+
 module.exports = {
   getArtist,
   getAlbum,
@@ -193,5 +204,6 @@ module.exports = {
   postSongLocation,
   putSongLocation,
   getSongLocation,
-  deleteSongLocation
+  deleteSongLocation,
+  getValidateLocation
 }
