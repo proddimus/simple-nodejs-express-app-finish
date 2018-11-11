@@ -2,7 +2,7 @@
   "name": "geotunes-app",
   "version": "1.0.0",
   "description": "Remember where you played those tunes, at the call of an API.",
-  "main": "app.js",
+  "main": "gotunes-app.js",
   "scripts": {
     "test": "jest ."
   },
@@ -25,6 +25,10 @@
     "sqlite3": "^4.0.3"
   },
   "devDependencies": {
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^22.0.0",
     "jest": "^23.6.0"
   }
 }
