@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/proddimus/simple-nodejs-express-app-start#readme",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "sqlite3": "^4.0.3"
   },

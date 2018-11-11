@@ -22,6 +22,8 @@ const initDB = async function initDB() {
           db.run('CREATE TABLE IF NOT EXISTS songs (song_id INTEGER PRIMARY KEY, title TEXT, length TEXT, album_id INTEGER, FOREIGN KEY (album_id) REFERENCES albums (album_id) ON DELETE CASCADE ON UPDATE NO ACTION)')
           db.run('delete from songs')
 
+          db.run('CREATE TABLE IF NOT EXISTS songLocations (song_location_id INTEGER PRIMARY KEY, location TEXT, song_id INTEGER, FOREIGN KEY (song_id) REFERENCES songs (song_id) ON DELETE CASCADE ON UPDATE NO ACTION)')
+
           var insertArtistStmt = db.prepare('INSERT INTO artists (artist_id, name) VALUES (?, ?)')
           var insertAlbumStmt = db.prepare('INSERT INTO albums (album_id, title, description, artist_id) VALUES (?, ?, ?, ?)')
           var insertSongStmt = db.prepare('INSERT INTO songs (title, length, album_id) VALUES (?, ?, ?)')
@@ -39,6 +41,7 @@ const initDB = async function initDB() {
             }
           }
         })
+        console.log("Completed load of Music Data");
       });
   } catch (err) {
     console.log('Issue encountered processing file, script aborted.' + err);
@@ -99,10 +102,96 @@ const getSong = async function getSong(req, res, next) {
   }
 }
 
+const getSongLocations = async function getSongLocations(req, res, next) {
+  try {
+    let songLocations = [];
+    db.all("SELECT * FROM songLocations", function(err, rows) {
+      if (err) {
+        throw err;
+      }
+      rows.forEach((row) => {
+        songLocations.push(row);
+      });
+      res.json(songLocations);
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 
+const deleteSongLocations = async function deleteSongLocations(req, res, next) {
+  try {
+    db.run("DELETE FROM songLocations", [], function(err) {
+      if (err) {
+        return console.error(err.message);
+      }
+      console.log(`Row(s) deleted ${this.changes}`);
+      res.json({result: "success"});
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+const postSongLocation = async function putSongLocation(req, res, next) {
+  try {
+    let responseBody = req.body;
+    await db.run('INSERT INTO songLocations (location, song_id) VALUES (?, ?)', [req.body.location, req.body.song_id]);
+    responseBody.status = "success";
+    res.json(responseBody);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const putSongLocation = async function putSongLocation(req, res, next) {
+  try {
+    let responseBody = req.body;
+    await db.run('INSERT OR REPLACE INTO songLocations (song_location_id, location, song_id) VALUES (?, ?, ?)', [req.body.song_location_id, req.body.location, req.body.song_id]);
+    responseBody.status = "success";
+    res.json(responseBody);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const getSongLocation = async function getSongLocation(req, res, next) {
+  try {
+    const song_location_id = req.params.song_location_id;
+    let songLocations = [];
+    db.get("SELECT * FROM songLocations WHERE song_location_id = ? ", [song_location_id], (err, row) => {
+      res.json(row);
+      // process the row here
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+const deleteSongLocation = async function deleteSongLocation(req, res, next) {
+  try {
+    const song_location_id = req.params.song_location_id;
+    let songLocations = [];
+    db.run("DELETE FROM songLocations WHERE song_location_id = ? ", [song_location_id], function(err) {
+      if (err) {
+        return console.error(err.message);
+      }
+      console.log(`Row(s) deleted ${this.changes}`);
+      res.json({result: "success"});
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 
 module.exports = {
   getArtist,
   getAlbum,
-  getSong
+  getSong,
+  getSongLocations,
+  deleteSongLocations,
+  postSongLocation,
+  putSongLocation,
+  getSongLocation,
+  deleteSongLocation
 }
