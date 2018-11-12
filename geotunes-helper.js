@@ -65,7 +65,7 @@ const getArtist = async function getArtist(req, res, next) {
       res.json(artists);
     });
   } catch (err) {
-    res.json(err);
+    next(err);
   }
 }
 
@@ -82,7 +82,7 @@ const getAlbum = async function getAlbum(req, res, next) {
       res.json(albums);
     });
   } catch (err) {
-    res.json(err);
+    next(err);
   }
 }
 
@@ -99,7 +99,7 @@ const getSong = async function getSong(req, res, next) {
       res.json(songs);
     });
   } catch (err) {
-    res.json(err);
+    next(err);
   }
 }
 
@@ -116,7 +116,7 @@ const getSongLocations = async function getSongLocations(req, res, next) {
       res.json(songLocations);
     });
   } catch (err) {
-    res.json(err);
+    next(err);
   }
 }
 
@@ -130,7 +130,7 @@ const deleteSongLocations = async function deleteSongLocations(req, res, next) {
       res.json({result: "success"});
     });
   } catch (err) {
-    res.json(err);
+    next(err);
   }
 }
 
@@ -142,7 +142,7 @@ const postSongLocation = async function putSongLocation(req, res, next) {
     responseBody.status = "success";
     res.json(responseBody);
   } catch (err) {
-    res.json(err);
+    next(err);
   }
 }
 
@@ -155,7 +155,7 @@ const putSongLocation = async function putSongLocation(req, res, next) {
     responseBody.status = "success";
     res.json(responseBody);
   } catch (err) {
-    res.json(err);
+    next(err);
   }
 }
 
