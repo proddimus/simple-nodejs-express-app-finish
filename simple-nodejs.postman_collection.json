@@ -1,0 +1,107 @@
+{
+	"info": {
+		"_postman_id": "b9e62bf2-43a7-4c60-872a-6ab2689ea764",
+		"name": "simple-nodejs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "artists",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{url}}/artist",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"artist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create artist",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"artist_id\": 1,\n\t\"name\": \"Test Artist\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/artist",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"artist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update artist",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Test Artist Updated\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/artist/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"artist",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete artist",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/artist/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"artist",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
