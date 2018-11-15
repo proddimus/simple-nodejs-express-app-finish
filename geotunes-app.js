@@ -29,6 +29,10 @@ app.get('/album', async (req, res, next) => {
   helper.getAlbum(req, res, next);
 });
 
+app.get('/albumByArtist/:artist_id', async (req, res, next) => {
+  helper.getAlbumsByArtist(req,res,next);
+});
+
 app.get('/song', async (req, res, next) => {
   helper.getSong(req, res, next);
 });

@@ -121,6 +121,18 @@ const getAlbum = async function getAlbum(req, res, next) {
   }
 }
 
+const getAlbumsByArtist = async function getAlbumsByArtist(req, res, next) {
+  try {
+    const artist_id = req.params.artist_id;
+    let songLocations = [];
+    db.get("SELECT * FROM albums WHERE artist_id = ? ", [artist_id], (err, row) => {
+      res.json(row);
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 const getSong = async function getSong(req, res, next) {
   try {
     let songs = [];
@@ -242,6 +254,7 @@ module.exports = {
   putArtist,
   deleteArtist,
   getAlbum,
+  getAlbumsByArtist,
   getSong,
   getSongLocations,
   deleteSongLocations,
