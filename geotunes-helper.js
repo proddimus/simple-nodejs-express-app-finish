@@ -73,7 +73,9 @@ const postArtist = async function postArtist(req, res, next) {
   try {
     getValidateArtist(req.body.name);
     let responseBody = req.body;
-    await db.run('INSERT INTO artists (artist_id, name) VALUES (?, ?)', [req.body.artist_id, req.body.name]);
+    let artist_id = req.body.artist_id;
+    if (!artist_id) artist_id = new Date();
+    await db.run('INSERT INTO artists (artist_id, name) VALUES (?, ?)', [artist_id, req.body.name]);
     responseBody.status = "success";
     res.json(responseBody);
   } catch (err) {
