@@ -13,6 +13,18 @@ app.get('/artist', async (req, res, next) => {
   helper.getArtist(req, res, next);
 });
 
+app.post('/artist', async (req, res, next) => {
+  helper.postArtist(req, res, next);
+});
+
+app.put('/artist/:artist_id', async (req, res, next) => {
+  helper.putArtist(req, res, next);
+});
+
+app.delete('/artist/:artist_id', async (req, res, next) => {
+  helper.deleteArtist(req, res, next);
+});
+
 app.get('/album', async (req, res, next) => {
   helper.getAlbum(req, res, next);
 });
