@@ -1,8 +1,7 @@
-var sqlite3 = require('sqlite3').verbose()
-var db = new sqlite3.Database('./database.sqlite')
+var pgp = require('pg-promise')({})
+var db = pgp('postgres://postgres:admin123@simple-nodejs-express-postgres:5432/simple')
 const fs = require('fs')
 const validator = require('validator');
-
 
 const initDB = async function initDB() {
   musicData = {};
@@ -13,37 +12,60 @@ const initDB = async function initDB() {
           throw err;
         }
         const musicData = JSON.parse(fileContents);
-        db.serialize(function() {
-          db.run('CREATE TABLE IF NOT EXISTS artists (artist_id INTEGER PRIMARY KEY, name TEXT)')
-          db.run('delete from artists')
 
-          db.run('CREATE TABLE IF NOT EXISTS albums (album_id INTEGER PRIMARY KEY, title TEXT, description TEXT, artist_id INTEGER, FOREIGN KEY (artist_id) REFERENCES artists (artist_id) ON DELETE CASCADE ON UPDATE NO ACTION)')
-          db.run('delete from albums')
-
-          db.run('CREATE TABLE IF NOT EXISTS songs (song_id INTEGER PRIMARY KEY, title TEXT, length TEXT, album_id INTEGER, FOREIGN KEY (album_id) REFERENCES albums (album_id) ON DELETE CASCADE ON UPDATE NO ACTION)')
-          db.run('delete from songs')
-
-          db.run('CREATE TABLE IF NOT EXISTS songLocations (song_location_id INTEGER PRIMARY KEY, location TEXT, song_id INTEGER, FOREIGN KEY (song_id) REFERENCES songs (song_id) ON DELETE CASCADE ON UPDATE NO ACTION)')
-
-          var insertArtistStmt = db.prepare('INSERT INTO artists (artist_id, name) VALUES (?, ?)')
-          var insertAlbumStmt = db.prepare('INSERT INTO albums (album_id, title, description, artist_id) VALUES (?, ?, ?, ?)')
-          var insertSongStmt = db.prepare('INSERT INTO songs (title, length, album_id) VALUES (?, ?, ?)')
+        db.tx(t => {
+          // this.ctx = transaction config + state context;
+          console.log("Starting transaction...");
+          return t.batch([
+              t.none('CREATE TABLE IF NOT EXISTS artists (artist_id INTEGER PRIMARY KEY, name TEXT)'),
+              t.none('CREATE TABLE IF NOT EXISTS albums (album_id INTEGER PRIMARY KEY, title TEXT, description TEXT, artist_id INTEGER, FOREIGN KEY (artist_id) REFERENCES artists (artist_id) ON DELETE CASCADE ON UPDATE NO ACTION)'),
+              t.none('CREATE TABLE IF NOT EXISTS songs (song_id INTEGER PRIMARY KEY, title TEXT, length TEXT, album_id INTEGER, FOREIGN KEY (album_id) REFERENCES albums (album_id) ON DELETE CASCADE ON UPDATE NO ACTION)'),
+              t.none('CREATE TABLE IF NOT EXISTS songLocations (song_location_id INTEGER PRIMARY KEY, location TEXT, song_id INTEGER, FOREIGN KEY (song_id) REFERENCES songs (song_id) ON DELETE CASCADE ON UPDATE NO ACTION)'),
+              t.none('delete from artists'),
+              t.none('delete from albums'),
+              t.none('delete from songs'),
+              t.none('delete from songLocations')
+          ]);
+        })
+        .then(data => {
+          // success;
+          var insertArtistStmt = 'INSERT INTO artists (artist_id, name) VALUES ($1, $2)'
+          var insertAlbumStmt = 'INSERT INTO albums (album_id, title, description, artist_id) VALUES ($1, $2, $3, $4)'
+          var insertSongStmt = 'INSERT INTO songs (song_id, title, length, album_id) VALUES ($1, $2, $3, $4)'
 
           for (var artist in musicData) {
             const thisArtist = musicData[artist];
-            insertArtistStmt.run(thisArtist.artist_id, thisArtist.name);
-            for (var album in thisArtist.albums) {
-              const thisAlbum = thisArtist.albums[album];
-              insertAlbumStmt.run(thisAlbum.album_id, thisAlbum.title, thisAlbum.description, thisArtist.artist_id);
-              for (var song in thisAlbum.songs) {
-                const thisSong = thisAlbum.songs[song];
-                insertSongStmt.run(thisSong.title, thisSong.length, thisAlbum.album_id);
-              }
-            }
+            db.none(insertArtistStmt, [thisArtist.artist_id, thisArtist.name])
+              .then(function () {
+                // success
+                for (var album in thisArtist.albums) {
+                  const thisAlbum = thisArtist.albums[album];
+
+                  db.none(insertAlbumStmt, [thisAlbum.album_id, thisAlbum.title, thisAlbum.description, thisArtist.artist_id])
+                    .then(function () {
+                      for (var song in thisAlbum.songs) {
+                        const thisSong = thisAlbum.songs[song];
+                        db.none(insertSongStmt, [thisSong.id, thisSong.title, thisSong.length, thisAlbum.album_id])
+                          .catch(function (error) {
+                            console.log('ERROR:', error)
+                          })
+                      }
+                    })
+                    .catch(function (error) {
+                      console.log('ERROR:', error)
+                    })
+                }
+              })
+              .catch(function (error) {
+                console.log('ERROR:', error)
+              })
           }
+          console.log("Completed load of Music Data");
         })
-        console.log("Completed load of Music Data");
-      });
+        .catch(error => {
+          console.log('ERROR:', error);
+        });
+      })
   } catch (err) {
     console.log('Issue encountered processing file, script aborted.' + err);
     throw err;

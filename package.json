@@ -24,6 +24,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "pg-promise": "^8.5.2",
     "sqlite3": "^4.0.3",
     "validator": "^10.9.0"
   },

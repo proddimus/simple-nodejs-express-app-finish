@@ -1,0 +1,22 @@
+version: '3.3'
+services:
+  simple-nodejs-express-app:
+    container_name: simple-nodejs-express-app
+    build: .
+    ports:
+     - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - './:/usr/src/app'
+
+  simple-nodejs-express-postgres:
+    container_name: simple-nodejs-express-postgres
+    image: postgres:11.1
+    ports:
+      - "5432:5432"
+    environment:
+    - TZ=Europe/London
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=admin123
+    - POSTGRES_DB=simple
