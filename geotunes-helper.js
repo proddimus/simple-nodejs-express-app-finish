@@ -69,6 +69,43 @@ const getArtist = async function getArtist(req, res, next) {
   }
 }
 
+const postArtist = async function postArtist(req, res, next) {
+  try {
+    getValidateArtist(req.body.name);
+    let responseBody = req.body;
+    let artist_id = req.body.artist_id;
+    if (!artist_id) artist_id = new Date();
+    await db.run('INSERT INTO artists (artist_id, name) VALUES (?, ?)', [artist_id, req.body.name]);
+    responseBody.status = "success";
+    res.json(responseBody);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const putArtist = async function putArtist(req, res, next) {
+  try {
+    getValidateArtist(req.body.name);
+    let responseBody = req.body;
+    await db.run('UPDATE artists set name = ? WHERE artist_id = ?', [req.body.name, req.params.artist_id]);
+    responseBody.status = "success";
+    res.json(responseBody);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const deleteArtist = async function deleteArtist(req, res, next) {
+  try {
+    let responseBody = req.body;
+    await db.run('DELETE FROM artists WHERE artist_id = ?', [req.params.artist_id]);
+    responseBody.status = "success";
+    res.json(responseBody);
+  } catch (err) {
+    next(err);
+  }
+}
+
 const getAlbum = async function getAlbum(req, res, next) {
   try {
     let albums = [];
@@ -80,6 +117,18 @@ const getAlbum = async function getAlbum(req, res, next) {
         albums.push(row);
       });
       res.json(albums);
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+const getAlbumsByArtist = async function getAlbumsByArtist(req, res, next) {
+  try {
+    const artist_id = req.params.artist_id;
+    let songLocations = [];
+    db.get("SELECT * FROM albums WHERE artist_id = ? ", [artist_id], (err, row) => {
+      res.json(row);
     });
   } catch (err) {
     next(err);
@@ -195,9 +244,19 @@ const getValidateLocation = function getValidateLocation(location) {
   }
 }
 
+const getValidateArtist = function getValidateArtist(name) {
+  if (validator.isEmpty(name)){
+    throw new Error("Invalid Name");
+  }
+}
+
 module.exports = {
   getArtist,
+  postArtist,
+  putArtist,
+  deleteArtist,
   getAlbum,
+  getAlbumsByArtist,
   getSong,
   getSongLocations,
   deleteSongLocations,
